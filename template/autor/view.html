@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ titulo }}</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div>
+        <h1>{{ titulo }}</h1>
+        <a href="?action=agregarAutor">
+            <button>Agregar Autor</button>
+        </a>
+    </div>
+
+    <br>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for autor in autores %}
+            <tr>
+                <td>{{ autor.nombre }}</td>
+                <td>{{ autor.apellido }}</td>
+                <td>{{ autor.fecha_nacimiento }}</td>
+                <td>
+                    <!-- Botón de editar autor -->
+                    <a href="?action=editarAutor&id={{ autor.id }}"><button>Editar</button></a>
+
+                    <!-- Botón de eliminar autor -->
+                    <form class="deleteAutorForm" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="eliminarAutor">
+                        <input type="hidden" name="id" value="{{ autor.id }}">
+                        <button type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        $(document).ready(function() {
+            $('.deleteAutorForm').on('submit', function(event) {
+                event.preventDefault();
+                if (confirm('¿Estás seguro de que deseas eliminar este autor?')) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "autor" %}',
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            alert(response.message);
+                            if (response.status === 'success') {
+                                window.location.href = '{% url "autor" %}';
+                            }
+                        },
+                        error: function() {
+                            alert('Error al procesar la solicitud.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

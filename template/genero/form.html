@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ titulo }}</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>{{ titulo }}</h1>
+    <div>
+        <form id="generoForm" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="hidden" name="action" value="{{ action }}">
+            {% if genero %}
+                <input type="hidden" name="id" value="{{ genero.id }}">
+            {% endif %}
+            <button type="submit">{{ button_text }}</button>
+        </form>
+        <a href="{% url 'genero' %}"><button>Cancelar</button></a>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#generoForm').on('submit', function(event) {
+                event.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "genero" %}',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            alert(response.message);
+                            window.location.href = '{% url "genero" %}';
+                        } else if (response.status === 'error') {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Error al procesar la solicitud.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

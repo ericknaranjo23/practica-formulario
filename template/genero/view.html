@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ titulo }}</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div>
+        <h1>{{ titulo }}</h1>
+        <a href="?action=agregarGenero">
+            <button>Agregar Género</button>
+        </a>
+    </div>
+    
+    <br>
+    <table border="1"  >
+        <thead>
+            <tr>
+                <th>Nombre del Género</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for genero in generos %}
+            <tr>
+                <td>{{ genero.nombre_genero }}</td>
+                <td>
+                    <!-- Botón de editar género -->
+                    <a href="?action=editarGenero&id={{ genero.id }}"><button>Editar</button></a>
+                    
+                    <!-- Botón de eliminar género -->
+                    <form class="deleteGeneroForm" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="eliminarGenero">
+                        <input type="hidden" name="id" value="{{ genero.id }}">
+                        <button type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        $(document).ready(function() {
+            $('.deleteGeneroForm').on('submit', function(event) {
+                event.preventDefault();
+                if (confirm('¿Estás seguro de que deseas eliminar este género?')) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "genero" %}',
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            alert(response.message);
+                            if (response.status === 'success') {
+                                window.location.href = '{% url "genero" %}';
+                            }
+                        },
+                        error: function() {
+                            alert('Error al procesar la solicitud.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
